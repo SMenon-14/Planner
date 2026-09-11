@@ -1,6 +1,6 @@
 {
-  "name": "Planner",
-  "short_name": "Planner",
+  "name": "Sprout Planner",
+  "short_name": "Sprout",
   "description": "A cozy day-by-day planner with tasks, hourly schedule, and calendar sync.",
   "start_url": "./index.html",
   "scope": "./",
