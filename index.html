@@ -826,7 +826,7 @@
         <button id="addTaskBtn">Add</button>
       </div>
       <div class="card">
-        ${sorted.length===0 ? '<div class="empty-state">nothing here yet — add your first task above 🌱</div>' :
+        ${sorted.length===0 ? '<div class="empty-state">nothing here yet — add your first task above</div>' :
           sorted.map(t=>`
             <div class="task-item ${t.done?'done':''}" data-id="${t.id}">
               <button class="chk ${t.done?'on':''}" data-action="ttoggle" data-id="${t.id}">${CHECK_SVG}</button>
