@@ -381,7 +381,7 @@
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 21C12 21 4 15.5 4 9.5C4 6.46 6.46 4 9.5 4C11 4 12 5 12 5C12 5 13 4 14.5 4C17.54 4 20 6.46 20 9.5C20 15.5 12 21 12 21Z" fill="var(--accent)" opacity="0"/><path d="M12 3C12 3 12 8 8 9C4 10 4 5 4 5C4 5 8 3 12 3Z" fill="var(--accent-2)"/><path d="M12 3C12 3 12 8 16 9C20 10 20 5 20 5C20 5 16 3 12 3Z" fill="var(--accent-2)"/><path d="M12 21V8" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/></svg>
         Planner
       </div>
-      <div class="top-sub" id="topSub">plan your day, gently</div>
+      <div class="top-sub" id="topSub">plan your day</div>
     </div>
   </header>
 
@@ -713,10 +713,10 @@
   });
 
   async function render(){
-    if(state.view==='today'){ topSub.textContent='plan your day, gently'; await renderToday(); }
-    else if(state.view==='tasks'){ topSub.textContent='everything on your list'; renderTasks(); }
-    else if(state.view==='calendar'){ topSub.textContent='the bigger picture'; await renderCalendar(); }
-    else if(state.view==='theme'){ topSub.textContent='make it yours'; renderTheme(); }
+    if(state.view==='today'){ topSub.textContent='hourly'; await renderToday(); }
+    else if(state.view==='tasks'){ topSub.textContent='to-do'; renderTasks(); }
+    else if(state.view==='calendar'){ topSub.textContent='this month'; await renderCalendar(); }
+    else if(state.view==='theme'){ topSub.textContent='customize'; renderTheme(); }
   }
 
   // ----- Today view -----
