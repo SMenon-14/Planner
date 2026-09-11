@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Sprout Planner</title>
+<title>Planner</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
 <meta name="theme-color" content="#F1F3EC">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Sprout">
+<meta name="apple-mobile-web-app-title" content="Planner">
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root{
@@ -379,7 +379,7 @@
     <div>
       <div class="brand">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 21C12 21 4 15.5 4 9.5C4 6.46 6.46 4 9.5 4C11 4 12 5 12 5C12 5 13 4 14.5 4C17.54 4 20 6.46 20 9.5C20 15.5 12 21 12 21Z" fill="var(--accent)" opacity="0"/><path d="M12 3C12 3 12 8 8 9C4 10 4 5 4 5C4 5 8 3 12 3Z" fill="var(--accent-2)"/><path d="M12 3C12 3 12 8 16 9C20 10 20 5 20 5C20 5 16 3 12 3Z" fill="var(--accent-2)"/><path d="M12 21V8" stroke="var(--ink)" stroke-width="1.6" stroke-linecap="round"/></svg>
-        Sprout Planner
+        Planner
       </div>
       <div class="top-sub" id="topSub">plan your day, gently</div>
     </div>
@@ -992,7 +992,7 @@
       </div>
       <div class="card">
         <h3 style="margin-top:0;">Reminders</h3>
-        <p style="font-size:13px;color:var(--ink-soft);margin:0 0 4px;">Sprout Planner can notify you when a scheduled hourly item comes up, as long as this page stays open in your browser.</p>
+        <p style="font-size:13px;color:var(--ink-soft);margin:0 0 4px;">Planner can notify you when a scheduled hourly item comes up, as long as this page stays open in your browser.</p>
         <button class="notif-btn" id="enableNotif">${notifStatus==='granted'?'Notifications enabled':'Enable notifications'}</button>
         <div class="notif-status">${statusTxt}</div>
       </div>
@@ -1083,7 +1083,7 @@
     events.filter(e=>e.hour===now.getHours() && !e.done).forEach(e=>{
       if(!state.notifiedToday.has(e.id)){
         state.notifiedToday.add(e.id);
-        try{ new Notification('Sprout Planner', {body: e.text}); }catch(err){}
+        try{ new Notification('Planner', {body: e.text}); }catch(err){}
       }
     });
   }
