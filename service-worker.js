@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sprout-planner-v1';
+const CACHE_NAME = 'planner-v1';
 const APP_SHELL = [
   './',
   './index.html',
