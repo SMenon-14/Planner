@@ -389,6 +389,58 @@
   .lock-error{color:#B5484D;font-size:12.5px;margin-bottom:8px;min-height:16px;text-align:center;}
   #appShell{display:flex;flex-direction:column;height:100%;}
   #appShell.hidden{display:none;}
+
+  .modal-card-wide{max-width:340px;text-align:left;max-height:85vh;overflow-y:auto;}
+  .field-label{font-size:12px;color:var(--ink-soft);font-weight:700;display:block;margin:10px 0 4px;}
+  .modal-card input[type=text], .modal-card input[type=date], .modal-card input[type=time], .modal-card select{
+    width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:10px;
+    padding:9px 10px;font-family:inherit;font-size:13.5px;background:var(--surface);color:var(--ink);outline:none;
+  }
+  .modal-card input:focus, .modal-card select:focus{border-color:var(--accent);}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .seg-control{display:flex;background:var(--surface-2);border-radius:10px;padding:3px;margin-bottom:4px;}
+  .seg-control .seg{
+    flex:1;border:none;background:none;padding:8px;border-radius:8px;cursor:pointer;
+    font-family:'Quicksand';font-weight:600;font-size:13px;color:var(--ink-soft);
+  }
+  .seg-control .seg.active{background:var(--surface);color:var(--ink);box-shadow:var(--shadow);}
+
+  .tag-chip{
+    display:inline-block;background:var(--surface-2);color:var(--ink-soft);font-size:10.5px;font-weight:700;
+    padding:2px 8px;border-radius:10px;margin:2px 4px 0 0;
+  }
+  .tag-filter-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px;}
+  .tag-filter-row::-webkit-scrollbar{display:none;}
+  .tag-filter-btn{
+    flex-shrink:0;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);
+    font-size:12px;font-weight:700;padding:6px 12px;border-radius:20px;cursor:pointer;white-space:nowrap;
+  }
+  .tag-filter-btn.active{background:var(--accent);color:white;border-color:var(--accent);}
+  .assignment-sub{font-size:11px;color:var(--accent);font-weight:700;display:block;margin-top:2px;}
+  .fab-row{display:flex;gap:8px;margin-bottom:16px;}
+  .fab-row button{
+    flex:1;background:var(--accent);color:white;border:none;border-radius:12px;padding:11px;
+    font-family:'Quicksand';font-weight:600;font-size:13.5px;cursor:pointer;
+  }
+  .fab-row button.secondary{background:var(--surface);color:var(--ink);box-shadow:var(--shadow);}
+  .repeat-badge{color:var(--accent-2);flex-shrink:0;display:flex;align-items:center;}
+  .note-item{
+    background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:14px;margin-bottom:12px;cursor:pointer;
+  }
+  .note-item h4{margin:0 0 4px;font-size:14.5px;font-family:'Quicksand';}
+  .note-item p{margin:0;font-size:12.5px;color:var(--ink-soft);white-space:pre-wrap;
+    overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+  .note-editor textarea{
+    width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:12px;
+    padding:12px;font-family:inherit;font-size:14px;background:var(--surface);color:var(--ink);
+    outline:none;resize:vertical;min-height:200px;
+  }
+  .note-editor input[type=text]{
+    width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:12px;
+    padding:11px 12px;font-family:'Quicksand';font-weight:600;font-size:15px;
+    background:var(--surface);color:var(--ink);outline:none;margin-bottom:10px;
+  }
 </style>
 </head>
 <body>
@@ -432,6 +484,80 @@
     </div>
   </div>
 
+  <div class="modal-overlay hidden" id="eventModal">
+    <div class="modal-card modal-card-wide">
+      <h3 id="eventModalTitle">Add event</h3>
+      <label class="field-label">Title</label>
+      <input type="text" id="evTitle" placeholder="e.g. Team meeting">
+      <div class="field-row">
+        <div>
+          <label class="field-label">Time</label>
+          <input type="time" id="evTime">
+        </div>
+        <div>
+          <label class="field-label">Duration</label>
+          <select id="evDuration"></select>
+        </div>
+      </div>
+      <label class="field-label">Repeats</label>
+      <select id="evRepeat">
+        <option value="none">Does not repeat</option>
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+      </select>
+      <div id="evEndWrap" style="display:none;">
+        <label class="field-label">Ends</label>
+        <input type="date" id="evEndDate">
+      </div>
+      <label class="field-label">Reminder</label>
+      <select id="evReminder"></select>
+      <button class="opt" id="evSaveBtn" style="margin-top:6px;">Save</button>
+      <button class="cancel" id="evCancelBtn">Cancel</button>
+    </div>
+  </div>
+
+  <div class="modal-overlay hidden" id="taskModal">
+    <div class="modal-card modal-card-wide">
+      <h3>Add item</h3>
+      <div class="seg-control" id="taskTypeSeg">
+        <button class="seg active" data-type="task">Task</button>
+        <button class="seg" data-type="assignment">Assignment</button>
+      </div>
+      <label class="field-label">Title</label>
+      <input type="text" id="taskTitle" placeholder="e.g. Finish reading">
+      <div id="assignmentFields" style="display:none;">
+        <label class="field-label">Course</label>
+        <input type="text" id="taskCourse" placeholder="e.g. CHEM 201">
+        <label class="field-label">Submission type</label>
+        <select id="taskSubmission">
+          <option value="Online upload">Online upload</option>
+          <option value="Email">Email</option>
+          <option value="In-person / physical">In-person / physical</option>
+          <option value="Presentation">Presentation</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <div>
+          <label class="field-label">Due date</label>
+          <input type="date" id="taskDue">
+        </div>
+        <div>
+          <label class="field-label">Due time</label>
+          <input type="time" id="taskDueTime">
+        </div>
+      </div>
+      <label class="field-label">Reminder</label>
+      <select id="taskReminder"></select>
+      <div id="tagsFieldWrap">
+        <label class="field-label">Tags <span style="font-weight:400;color:var(--ink-soft);">(comma separated)</span></label>
+        <input type="text" id="taskTags" placeholder="e.g. Personal, Side project">
+      </div>
+      <button class="opt" id="taskSaveBtn" style="margin-top:6px;">Save</button>
+      <button class="cancel" id="taskCancelBtn">Cancel</button>
+    </div>
+  </div>
+
   <nav class="tabbar">
     <button data-view="today">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2" stroke-linecap="round"/></svg>
@@ -445,6 +571,10 @@
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 9.5h17M8 3v3M16 3v3" stroke-linecap="round"/></svg>
       <span class="tab-label">Calendar</span>
     </button>
+    <button data-view="notes">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3.5h9l3.5 3.5V20a1 1 0 01-1 1H6a1 1 0 01-1-1V4.5a1 1 0 011-1z"/><path d="M15 3.5V7h3.5M8 11h8M8 14.5h8M8 18h5" stroke-linecap="round"/></svg>
+      <span class="tab-label">Notes</span>
+    </button>
     <button data-view="theme">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3a9 9 0 100 18c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.3 0-1.1.9-2 2-2h1.6c1.9 0 3.4-1.5 3.4-3.4C20 6.7 16.4 3 12 3z"/><circle cx="7.5" cy="10.5" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="7.5" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="10" r="1" fill="currentColor" stroke="none"/></svg>
       <span class="tab-label">Theme</span>
@@ -457,6 +587,7 @@
 (function(){
   const CHECK_SVG = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M4 12l5 5L20 6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const CAL_SYNC_SVG = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 9.5h17M8 3v3M16 3v3" stroke-linecap="round"/><path d="M8 14l2.2 2.2L16 11" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const REPEAT_SVG = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 2l4 4-4 4" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 11V9a4 4 0 014-4h14" stroke-linecap="round"/><path d="M7 22l-4-4 4-4" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 13v2a4 4 0 01-4 4H3" stroke-linecap="round"/></svg>';
 
   const PRESETS = {
     sage: {name:'Sage', bg:'#F1F3EC', surface:'#FDFBF7', surface2:'#E9EDE3', ink:'#2E3B2E', inkSoft:'#6B7566', accent:'#C97B84', accent2:'#7C9885', accent3:'#D9A857', line:'#DCE1D5'},
@@ -473,6 +604,8 @@
     tasks: [],
     eventsIndex: [],
     eventsCache: {},
+    recurring: [],
+    notes: [],
     theme: {preset:'sage', accent:PRESETS.sage.accent, accent2:PRESETS.sage.accent2, bg:PRESETS.sage.bg, gridEnabled:false, gridAlpha:30},
     notifiedToday: new Set(),
     notifiedDate: '',
@@ -507,6 +640,47 @@
     return `${h12}:${String(m).padStart(2,'0')} ${period}`;
   }
   const MINUTE_OPTIONS = [0,5,10,15,20,25,30,35,40,45,50,55];
+  const DURATION_OPTIONS = [15,30,45,60,90,120,180];
+  const REMINDER_OPTIONS = [
+    {v:'', label:'No reminder'},
+    {v:'0', label:'At start time'},
+    {v:'5', label:'5 minutes before'},
+    {v:'15', label:'15 minutes before'},
+    {v:'30', label:'30 minutes before'},
+    {v:'60', label:'1 hour before'},
+    {v:'1440', label:'1 day before'}
+  ];
+  function fmtDuration(mins){
+    if(mins < 60) return `${mins}m`;
+    const h = Math.floor(mins/60), m = mins%60;
+    return m ? `${h}h ${m}m` : `${h}h`;
+  }
+  function reminderLabel(mins){
+    if(mins==null || mins==='') return null;
+    const opt = REMINDER_OPTIONS.find(o=>o.v===String(mins));
+    return opt ? opt.label : `${mins}m before`;
+  }
+  function weekdayOf(dateStr){
+    const [y,m,d] = dateStr.split('-').map(Number);
+    return new Date(y, m-1, d).getDay();
+  }
+  function occursOn(rec, dateObj){
+    const key = dateKey(dateObj);
+    if(rec.exceptions && rec.exceptions.includes(key)) return false;
+    if(key < rec.startDate) return false;
+    if(rec.endDate && key > rec.endDate) return false;
+    if(rec.freq==='daily') return true;
+    if(rec.freq==='weekly') return dateObj.getDay() === weekdayOf(rec.startDate);
+    return false;
+  }
+  async function getOccurrencesForDate(dateObj){
+    const recs = vaultData && vaultData.recurring ? vaultData.recurring : [];
+    return recs.filter(r=>occursOn(r, dateObj)).map(r=>({
+      id:r.id, hour:r.hour, minute:r.minute||0, durationMinutes:r.durationMinutes||60,
+      text:r.text, reminderMinutes:r.reminderMinutes, recurring:true,
+      done: (r.completions||[]).includes(dateKey(dateObj))
+    }));
+  }
 
   // ---------- encrypted local vault ----------
   let sessionKey = null;
@@ -555,7 +729,7 @@
     const saltBytes = crypto.getRandomValues(new Uint8Array(16));
     vaultSaltB64 = b64encode(saltBytes);
     sessionKey = await deriveKey(password, saltBytes);
-    vaultData = { tasks: [], theme: null, events: {}, gcalSettings: null };
+    vaultData = { tasks: [], theme: null, events: {}, gcalSettings: null, recurring: [], notes: [] };
     await persistVault();
   }
 
@@ -590,6 +764,8 @@
     if(key==='tasks') return vaultData.tasks!=null ? vaultData.tasks : fallback;
     if(key==='theme') return vaultData.theme!=null ? vaultData.theme : fallback;
     if(key==='gcal-settings') return vaultData.gcalSettings!=null ? vaultData.gcalSettings : fallback;
+    if(key==='recurring') return vaultData.recurring!=null ? vaultData.recurring : fallback;
+    if(key==='notes') return vaultData.notes!=null ? vaultData.notes : fallback;
     if(key==='events-index') return Object.keys(vaultData.events||{}).filter(k=>(vaultData.events[k]||[]).length>0);
     if(key.indexOf('events:')===0){
       const dk = key.slice(7);
@@ -602,6 +778,8 @@
     if(key==='tasks') vaultData.tasks = value;
     else if(key==='theme') vaultData.theme = value;
     else if(key==='gcal-settings') vaultData.gcalSettings = value;
+    else if(key==='recurring') vaultData.recurring = value;
+    else if(key==='notes') vaultData.notes = value;
     else if(key==='events-index') { /* derived from events, nothing to store */ }
     else if(key.indexOf('events:')===0){
       const dk = key.slice(7);
@@ -614,6 +792,8 @@
   async function loadAll(){
     state.tasks = await storeGet('tasks', []);
     state.eventsIndex = await storeGet('events-index', []);
+    state.recurring = await storeGet('recurring', []);
+    state.notes = await storeGet('notes', []);
     const savedTheme = await storeGet('theme', null);
     if(savedTheme) state.theme = savedTheme;
     applyTheme();
@@ -634,14 +814,16 @@
   // ---------- send schedule ----------
   async function buildDayText(d){
     const key = dateKey(d);
-    const events = (await getEvents(key)).filter(e=>!e.done).sort((a,b)=> a.hour-b.hour || (a.minute||0)-(b.minute||0));
+    const oneOff = (await getEvents(key)).filter(e=>!e.done);
+    const occ = (await getOccurrencesForDate(d)).filter(e=>!e.done);
+    const events = [...oneOff, ...occ].sort((a,b)=> a.hour-b.hour || (a.minute||0)-(b.minute||0));
     const dueTasks = state.tasks.filter(t=>t.due===key && !t.done);
     const header = d.toLocaleDateString(undefined,{weekday:'long', month:'long', day:'numeric'});
     const lines = [];
     events.forEach(e=>{
       lines.push(`${fmtTime(e.hour, e.minute)} — ${e.text}`);
     });
-    dueTasks.forEach(t=>lines.push(`• ${t.text}`));
+    dueTasks.forEach(t=>lines.push(`• ${t.text}${t.dueTime? ' ('+fmtTime(...t.dueTime.split(':').map(Number))+')' : ''}`));
     if(lines.length===0) return `${header}\nNothing on the books — I'm open.`;
     return `${header}\n${lines.join('\n')}`;
   }
@@ -746,13 +928,19 @@
     return !!(state.gcal.clientId && state.gcal.token && Date.now() < state.gcal.tokenExpiry);
   }
 
-  async function createCalendarEvent(title, start, end){
+  async function createCalendarEvent(title, start, end, opts){
+    opts = opts || {};
     const body = {
       summary: title,
       start: { dateTime: start.toISOString() },
-      end: { dateTime: end.toISOString() },
-      reminders: { useDefault:false, overrides:[{method:'popup', minutes:0}] }
+      end: { dateTime: end.toISOString() }
     };
+    if(opts.reminderMinutes==null || opts.reminderMinutes===''){
+      body.reminders = { useDefault:true };
+    } else {
+      body.reminders = { useDefault:false, overrides:[{method:'popup', minutes: parseInt(opts.reminderMinutes,10)}] };
+    }
+    if(opts.rrule) body.recurrence = [opts.rrule];
     const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
       method:'POST',
       headers:{ 'Authorization':'Bearer '+state.gcal.token, 'Content-Type':'application/json' },
@@ -762,16 +950,30 @@
     return res.json();
   }
 
+  function buildRRule(rec){
+    const freq = rec.freq==='weekly' ? 'WEEKLY' : 'DAILY';
+    let rule = `RRULE:FREQ=${freq}`;
+    if(rec.endDate){
+      const [y,m,d] = rec.endDate.split('-').map(Number);
+      const until = new Date(y, m-1, d, 23, 59, 59);
+      const pad = n=>String(n).padStart(2,'0');
+      rule += `;UNTIL=${until.getUTCFullYear()}${pad(until.getUTCMonth()+1)}${pad(until.getUTCDate())}T${pad(until.getUTCHours())}${pad(until.getUTCMinutes())}${pad(until.getUTCSeconds())}Z`;
+    }
+    return rule;
+  }
+
   function gcalQuickAddUrl(title, start, end){
     const fmt = d => d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${fmt(start)}/${fmt(end)}`;
   }
 
-  async function sendToCalendar(title, start, end, {silent=false} = {}){
+  async function sendToCalendar(title, start, end, opts){
+    opts = opts || {};
+    const silent = !!opts.silent;
     const ok = await ensureToken();
     if(ok){
       try{
-        await createCalendarEvent(title, start, end);
+        await createCalendarEvent(title, start, end, {reminderMinutes: opts.reminderMinutes, rrule: opts.rrule});
         if(!silent) showToast('Added to Google Calendar');
         return true;
       }catch(e){
@@ -850,13 +1052,16 @@
     if(state.view==='today'){ topSub.textContent='hourly'; await renderToday(); }
     else if(state.view==='tasks'){ topSub.textContent='to-do'; renderTasks(); }
     else if(state.view==='calendar'){ topSub.textContent='this month'; await renderCalendar(); }
+    else if(state.view==='notes'){ topSub.textContent='memos'; renderNotes(); }
     else if(state.view==='theme'){ topSub.textContent='customize'; renderTheme(); }
   }
 
   // ----- Today view -----
   async function renderToday(){
     const key = dateKey(state.selectedDate);
-    const events = await getEvents(key);
+    const oneOff = (await getEvents(key)).map(e=>({...e, recurring:false}));
+    const occurrences = await getOccurrencesForDate(state.selectedDate);
+    const events = [...oneOff, ...occurrences];
     let html = `
       <div class="day-nav">
         <button id="prevDay" aria-label="Previous day">&#8592;</button>
@@ -866,7 +1071,10 @@
         </div>
         <button id="nextDay" aria-label="Next day">&#8594;</button>
       </div>
-      <button class="share-link" id="openShareBtn">Send schedule</button>
+      <div class="fab-row">
+        <button id="addEventBtn">+ Add event</button>
+        <button class="secondary" id="openShareBtn">Send schedule</button>
+      </div>
     `;
     for(let h=6; h<=23; h++){
       const hourEvents = events.filter(e=>e.hour===h).sort((a,b)=>(a.minute||0)-(b.minute||0));
@@ -874,21 +1082,24 @@
       html += `<div class="hour-row ${hourEvents.length?'has-events':''}">
         <div class="hour-time">${timeLbl}</div>
         <div class="hour-body" data-hour="${h}">
-          ${hourEvents.map(ev=>`
-            <div class="event-chip ${ev.done?'done':''}" data-id="${ev.id}">
-              <button class="chk ${ev.done?'on':''}" data-action="toggle" data-id="${ev.id}">${CHECK_SVG}</button>
-              <span class="txt"><strong style="color:var(--ink-soft);font-weight:700;font-size:11.5px;">${fmtTime(h, ev.minute)}</strong>&nbsp; ${escapeHtml(ev.text)}</span>
-              <button class="cal-sync-btn" data-action="sync" data-id="${ev.id}" data-hour="${h}" title="Add to Google Calendar">${CAL_SYNC_SVG}</button>
-              <button class="del-btn" data-action="del" data-id="${ev.id}">&times;</button>
+          ${hourEvents.map(ev=>{
+            const dur = ev.durationMinutes || 60;
+            const endDate = new Date(2000,0,1,ev.hour, ev.minute||0); endDate.setMinutes(endDate.getMinutes()+dur);
+            const timeRange = `${fmtTime(ev.hour, ev.minute)} – ${fmtTime(endDate.getHours(), endDate.getMinutes())}`;
+            const remLbl = reminderLabel(ev.reminderMinutes);
+            return `
+            <div class="event-chip ${ev.done?'done':''}" data-id="${ev.id}" data-recurring="${ev.recurring?'1':'0'}">
+              <button class="chk ${ev.done?'on':''}" data-action="toggle" data-id="${ev.id}" data-recurring="${ev.recurring?'1':'0'}">${CHECK_SVG}</button>
+              <span class="txt">
+                <strong style="color:var(--ink-soft);font-weight:700;font-size:11px;">${timeRange}${dur!==60?` · ${fmtDuration(dur)}`:''}</strong>
+                ${ev.recurring?`<span class="repeat-badge" title="Repeating">${REPEAT_SVG}</span>`:''}
+                <br>${escapeHtml(ev.text)}
+                ${remLbl?`<br><span style="font-size:10.5px;color:var(--ink-soft);">🔔 ${remLbl}</span>`:''}
+              </span>
+              <button class="cal-sync-btn" data-action="sync" data-id="${ev.id}" data-recurring="${ev.recurring?'1':'0'}" title="Add to Google Calendar">${CAL_SYNC_SVG}</button>
+              <button class="del-btn" data-action="del" data-id="${ev.id}" data-recurring="${ev.recurring?'1':'0'}">&times;</button>
             </div>
-          `).join('')}
-          <div class="add-row">
-            <input type="text" placeholder="add something at ${timeLbl.toLowerCase()}..." data-hour="${h}">
-            <select data-minute="${h}" title="Minute" style="border:1px dashed var(--line);background:transparent;border-radius:10px;padding:8px 4px;font-family:inherit;font-size:12px;color:var(--ink-soft);">
-              ${MINUTE_OPTIONS.map(m=>`<option value="${m}">:${String(m).padStart(2,'0')}</option>`).join('')}
-            </select>
-            <button data-action="add" data-hour="${h}">+</button>
-          </div>
+          `;}).join('') || '<div style="font-size:12px;color:var(--ink-soft);padding:6px 0;">—</div>'}
         </div>
       </div>`;
     }
@@ -897,49 +1108,72 @@
     document.getElementById('prevDay').onclick = ()=>{ shiftDay(-1); };
     document.getElementById('nextDay').onclick = ()=>{ shiftDay(1); };
     document.getElementById('openShareBtn').onclick = ()=>openShareModal();
+    document.getElementById('addEventBtn').onclick = ()=>openEventModal();
 
     main.querySelectorAll('[data-action="toggle"]').forEach(b=>b.onclick = async ()=>{
-      const list = await getEvents(key);
-      const item = list.find(e=>e.id===b.dataset.id);
-      if(item){ item.done = !item.done; await setEvents(key, list); renderToday(); }
+      if(b.dataset.recurring==='1'){
+        await toggleRecurringCompletion(b.dataset.id, key);
+      } else {
+        const list = await getEvents(key);
+        const item = list.find(e=>e.id===b.dataset.id);
+        if(item){ item.done = !item.done; await setEvents(key, list); }
+      }
+      renderToday();
     });
     main.querySelectorAll('[data-action="del"]').forEach(b=>b.onclick = async ()=>{
-      let list = await getEvents(key);
-      list = list.filter(e=>e.id!==b.dataset.id);
-      await setEvents(key, list); renderToday();
+      if(b.dataset.recurring==='1'){
+        const onlyToday = confirm('Delete only this occurrence?\n\nOK = just this day\nCancel = choose to delete the whole series next');
+        if(onlyToday){
+          await addRecurringException(b.dataset.id, key);
+        } else if(confirm('Delete the entire repeating series? This cannot be undone.')){
+          await deleteRecurringSeries(b.dataset.id);
+        } else {
+          return;
+        }
+      } else {
+        let list = await getEvents(key);
+        list = list.filter(e=>e.id!==b.dataset.id);
+        await setEvents(key, list);
+      }
+      renderToday();
     });
     main.querySelectorAll('[data-action="sync"]').forEach(b=>b.onclick = async ()=>{
-      const list = await getEvents(key);
-      const item = list.find(e=>e.id===b.dataset.id);
+      let item;
+      if(b.dataset.recurring==='1'){
+        item = (state.recurring||[]).find(r=>r.id===b.dataset.id);
+      } else {
+        const list = await getEvents(key);
+        item = list.find(e=>e.id===b.dataset.id);
+      }
       if(!item) return;
       const start = new Date(state.selectedDate);
-      start.setHours(parseInt(b.dataset.hour,10), item.minute||0, 0, 0);
-      const end = new Date(start); end.setHours(end.getHours()+1);
-      sendToCalendar(item.text, start, end);
-    });
-    main.querySelectorAll('[data-action="add"]').forEach(b=>b.onclick = ()=>addEventFromInput(b.dataset.hour, key));
-    main.querySelectorAll('.add-row input').forEach(inp=>{
-      inp.addEventListener('keydown', (e)=>{ if(e.key==='Enter') addEventFromInput(inp.dataset.hour, key); });
+      start.setHours(item.hour, item.minute||0, 0, 0);
+      const end = new Date(start); end.setMinutes(end.getMinutes() + (item.durationMinutes||60));
+      const rrule = b.dataset.recurring==='1' ? buildRRule(item) : null;
+      sendToCalendar(item.text, start, end, {reminderMinutes: item.reminderMinutes, rrule});
     });
   }
 
-  async function addEventFromInput(hour, key){
-    const input = main.querySelector(`.add-row input[data-hour="${hour}"]`);
-    const minuteSel = main.querySelector(`.add-row select[data-minute="${hour}"]`);
-    const text = input.value.trim();
-    if(!text) return;
-    const minute = minuteSel ? parseInt(minuteSel.value,10) : 0;
-    const list = await getEvents(key);
-    list.push({id:uid(), hour:parseInt(hour,10), minute, text, done:false});
-    list.sort((a,b)=> a.hour-b.hour || (a.minute||0)-(b.minute||0));
-    await setEvents(key, list);
-    renderToday();
-    if(state.gcal.autoSync && state.gcal.clientId){
-      const start = new Date(state.selectedDate);
-      start.setHours(parseInt(hour,10), minute, 0, 0);
-      const end = new Date(start); end.setHours(end.getHours()+1);
-      sendToCalendar(text, start, end, {silent:true}).then(ok=>{ if(ok) showToast('Synced to Google Calendar'); });
-    }
+  async function toggleRecurringCompletion(id, key){
+    const list = state.recurring || [];
+    const rec = list.find(r=>r.id===id);
+    if(!rec) return;
+    rec.completions = rec.completions || [];
+    if(rec.completions.includes(key)) rec.completions = rec.completions.filter(k=>k!==key);
+    else rec.completions.push(key);
+    await storeSet('recurring', list);
+  }
+  async function addRecurringException(id, key){
+    const list = state.recurring || [];
+    const rec = list.find(r=>r.id===id);
+    if(!rec) return;
+    rec.exceptions = rec.exceptions || [];
+    if(!rec.exceptions.includes(key)) rec.exceptions.push(key);
+    await storeSet('recurring', list);
+  }
+  async function deleteRecurringSeries(id){
+    state.recurring = (state.recurring||[]).filter(r=>r.id!==id);
+    await storeSet('recurring', state.recurring);
   }
 
   function shiftDay(delta){
@@ -949,37 +1183,112 @@
     renderToday();
   }
 
+  // ----- Add Event modal -----
+  function populateSelect(sel, options, valueKey, labelKey){
+    sel.innerHTML = options.map(o=>`<option value="${o[valueKey]}">${o[labelKey]}</option>`).join('');
+  }
+  function openEventModal(){
+    const durSel = document.getElementById('evDuration');
+    durSel.innerHTML = DURATION_OPTIONS.map(m=>`<option value="${m}" ${m===60?'selected':''}>${fmtDuration(m)}</option>`).join('');
+    const remSel = document.getElementById('evReminder');
+    remSel.innerHTML = REMINDER_OPTIONS.map(o=>`<option value="${o.v}">${o.label}</option>`).join('');
+    document.getElementById('evTitle').value = '';
+    document.getElementById('evTime').value = '09:00';
+    document.getElementById('evRepeat').value = 'none';
+    document.getElementById('evEndWrap').style.display = 'none';
+    document.getElementById('evEndDate').value = '';
+    document.getElementById('eventModal').classList.remove('hidden');
+    document.getElementById('evTitle').focus();
+  }
+  function closeEventModal(){ document.getElementById('eventModal').classList.add('hidden'); }
+  document.getElementById('evCancelBtn').onclick = closeEventModal;
+  document.getElementById('eventModal').addEventListener('click', e=>{ if(e.target.id==='eventModal') closeEventModal(); });
+  document.getElementById('evRepeat').addEventListener('change', (e)=>{
+    document.getElementById('evEndWrap').style.display = e.target.value==='none' ? 'none' : 'block';
+  });
+  document.getElementById('evSaveBtn').onclick = async ()=>{
+    const text = document.getElementById('evTitle').value.trim();
+    if(!text){ showToast('Give it a title'); return; }
+    const timeVal = document.getElementById('evTime').value || '09:00';
+    const [hour, minute] = timeVal.split(':').map(Number);
+    const durationMinutes = parseInt(document.getElementById('evDuration').value,10);
+    const reminderVal = document.getElementById('evReminder').value;
+    const reminderMinutes = reminderVal==='' ? null : parseInt(reminderVal,10);
+    const repeat = document.getElementById('evRepeat').value;
+    const key = dateKey(state.selectedDate);
+
+    if(repeat==='none'){
+      const list = await getEvents(key);
+      list.push({id:uid(), hour, minute, durationMinutes, text, done:false, reminderMinutes});
+      list.sort((a,b)=> a.hour-b.hour || (a.minute||0)-(b.minute||0));
+      await setEvents(key, list);
+      if(state.gcal.autoSync && state.gcal.clientId){
+        const start = new Date(state.selectedDate); start.setHours(hour,minute,0,0);
+        const end = new Date(start); end.setMinutes(end.getMinutes()+durationMinutes);
+        sendToCalendar(text, start, end, {reminderMinutes, silent:true}).then(ok=>{ if(ok) showToast('Synced to Google Calendar'); });
+      }
+    } else {
+      const endDate = document.getElementById('evEndDate').value || null;
+      const rec = {
+        id:uid(), text, hour, minute, durationMinutes, reminderMinutes,
+        freq: repeat, startDate: key, endDate, exceptions:[], completions:[]
+      };
+      state.recurring = state.recurring || [];
+      state.recurring.push(rec);
+      await storeSet('recurring', state.recurring);
+    }
+    closeEventModal();
+    renderToday();
+  };
+
   // ----- Tasks view -----
+  let activeTagFilter = null;
   function renderTasks(){
-    const sorted = [...state.tasks].sort((a,b)=>{
+    const allTags = Array.from(new Set(state.tasks.flatMap(t=>t.tags||[]))).sort();
+    const visible = activeTagFilter ? state.tasks.filter(t=>(t.tags||[]).includes(activeTagFilter)) : state.tasks;
+    const sorted = [...visible].sort((a,b)=>{
       if(a.done!==b.done) return a.done?1:-1;
-      if(a.due && b.due) return a.due.localeCompare(b.due);
-      if(a.due) return -1;
-      if(b.due) return 1;
+      const aKey = a.due ? a.due+'T'+(a.dueTime||'23:59') : null;
+      const bKey = b.due ? b.due+'T'+(b.dueTime||'23:59') : null;
+      if(aKey && bKey) return aKey.localeCompare(bKey);
+      if(aKey) return -1;
+      if(bKey) return 1;
       return 0;
     });
     let html = `
-      <div class="new-task">
-        <input type="text" id="newTaskTxt" placeholder="add a task...">
-        <input type="date" id="newTaskDue">
-        <button id="addTaskBtn">Add</button>
+      <div class="fab-row">
+        <button id="openTaskModalBtn">+ Add task or assignment</button>
       </div>
-      <div class="card">
-        ${sorted.length===0 ? '<div class="empty-state">nothing here yet — add your first task above</div>' :
-          sorted.map(t=>`
-            <div class="task-item ${t.done?'done':''}" data-id="${t.id}">
-              <button class="chk ${t.done?'on':''}" data-action="ttoggle" data-id="${t.id}">${CHECK_SVG}</button>
-              <span class="txt">${escapeHtml(t.text)}</span>
-              ${t.due?`<span class="due">${new Date(t.due+'T00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span>`:''}
-              ${t.due?`<button class="cal-sync-btn" data-action="tsync" data-id="${t.id}" title="Add to Google Calendar">${CAL_SYNC_SVG}</button>`:''}
+    `;
+    if(allTags.length){
+      html += `<div class="tag-filter-row">
+        <button class="tag-filter-btn ${!activeTagFilter?'active':''}" data-tag="">All</button>
+        ${allTags.map(t=>`<button class="tag-filter-btn ${activeTagFilter===t?'active':''}" data-tag="${escapeHtml(t)}">${escapeHtml(t)}</button>`).join('')}
+      </div>`;
+    }
+    html += `<div class="card">
+        ${sorted.length===0 ? '<div class="empty-state">nothing here yet — add your first item above</div>' :
+          sorted.map(t=>{
+            const isAssignment = t.type==='assignment';
+            const dueLbl = t.due ? new Date(t.due+'T00:00').toLocaleDateString(undefined,{month:'short',day:'numeric'}) + (t.dueTime? ' · '+fmtTime(...t.dueTime.split(':').map(Number)) : '') : '';
+            return `
+            <div class="task-item ${t.done?'done':''}" data-id="${t.id}" style="align-items:flex-start;">
+              <button class="chk ${t.done?'on':''}" data-action="ttoggle" data-id="${t.id}" style="margin-top:2px;">${CHECK_SVG}</button>
+              <span class="txt">
+                ${escapeHtml(t.text)}
+                ${isAssignment?`<span class="assignment-sub">${escapeHtml(t.course||'Assignment')}${t.submissionType?' · '+escapeHtml(t.submissionType):''}</span>`:''}
+                ${(t.tags&&t.tags.length)?`<div>${t.tags.map(tag=>`<span class="tag-chip">${escapeHtml(tag)}</span>`).join('')}</div>`:''}
+              </span>
+              ${dueLbl?`<span class="due" style="margin-top:2px;">${dueLbl}</span>`:''}
+              ${t.due?`<button class="cal-sync-btn" data-action="tsync" data-id="${t.id}" title="Add to Google Calendar" style="margin-top:2px;">${CAL_SYNC_SVG}</button>`:''}
               <button class="del-btn" data-action="tdel" data-id="${t.id}">&times;</button>
             </div>
-          `).join('')}
+          `;}).join('')}
       </div>
     `;
     main.innerHTML = html;
-    document.getElementById('addTaskBtn').onclick = addTask;
-    document.getElementById('newTaskTxt').addEventListener('keydown', e=>{ if(e.key==='Enter') addTask(); });
+    document.getElementById('openTaskModalBtn').onclick = ()=>openTaskModal();
+    main.querySelectorAll('.tag-filter-btn').forEach(b=>b.onclick=()=>{ activeTagFilter = b.dataset.tag || null; renderTasks(); });
     main.querySelectorAll('[data-action="ttoggle"]').forEach(b=>b.onclick = async ()=>{
       const t = state.tasks.find(x=>x.id===b.dataset.id);
       if(t){ t.done=!t.done; await storeSet('tasks', state.tasks); renderTasks(); }
@@ -991,27 +1300,69 @@
     main.querySelectorAll('[data-action="tsync"]').forEach(b=>b.onclick = ()=>{
       const t = state.tasks.find(x=>x.id===b.dataset.id);
       if(!t || !t.due) return;
-      const start = new Date(t.due+'T09:00:00');
+      const timePart = t.dueTime || '09:00';
+      const start = new Date(t.due+'T'+timePart+':00');
       const end = new Date(start); end.setMinutes(end.getMinutes()+30);
-      sendToCalendar(t.text, start, end);
+      sendToCalendar(t.text, start, end, {reminderMinutes: t.reminderMinutes});
     });
   }
-  async function addTask(){
-    const txtEl = document.getElementById('newTaskTxt');
-    const dueEl = document.getElementById('newTaskDue');
-    const text = txtEl.value.trim();
-    if(!text) return;
-    const due = dueEl.value || null;
-    state.tasks.push({id:uid(), text, done:false, due});
+
+  // ----- Add Task/Assignment modal -----
+  let taskModalType = 'task';
+  function openTaskModal(){
+    taskModalType = 'task';
+    document.querySelectorAll('#taskTypeSeg .seg').forEach(s=>s.classList.toggle('active', s.dataset.type==='task'));
+    document.getElementById('assignmentFields').style.display = 'none';
+    document.getElementById('tagsFieldWrap').style.display = 'block';
+    document.getElementById('taskTitle').value = '';
+    document.getElementById('taskCourse').value = '';
+    document.getElementById('taskDue').value = '';
+    document.getElementById('taskDueTime').value = '';
+    document.getElementById('taskTags').value = '';
+    const remSel = document.getElementById('taskReminder');
+    remSel.innerHTML = REMINDER_OPTIONS.map(o=>`<option value="${o.v}">${o.label}</option>`).join('');
+    document.getElementById('taskModal').classList.remove('hidden');
+    document.getElementById('taskTitle').focus();
+  }
+  function closeTaskModal(){ document.getElementById('taskModal').classList.add('hidden'); }
+  document.getElementById('taskCancelBtn').onclick = closeTaskModal;
+  document.getElementById('taskModal').addEventListener('click', e=>{ if(e.target.id==='taskModal') closeTaskModal(); });
+  document.querySelectorAll('#taskTypeSeg .seg').forEach(s=>{
+    s.onclick = ()=>{
+      taskModalType = s.dataset.type;
+      document.querySelectorAll('#taskTypeSeg .seg').forEach(x=>x.classList.toggle('active', x===s));
+      document.getElementById('assignmentFields').style.display = taskModalType==='assignment' ? 'block' : 'none';
+      document.getElementById('tagsFieldWrap').style.display = taskModalType==='assignment' ? 'none' : 'block';
+    };
+  });
+  document.getElementById('taskSaveBtn').onclick = async ()=>{
+    const text = document.getElementById('taskTitle').value.trim();
+    if(!text){ showToast('Give it a title'); return; }
+    const due = document.getElementById('taskDue').value || null;
+    const dueTime = document.getElementById('taskDueTime').value || null;
+    const reminderVal = document.getElementById('taskReminder').value;
+    const reminderMinutes = reminderVal==='' ? null : parseInt(reminderVal,10);
+    const tagsRaw = document.getElementById('taskTags').value.trim();
+    const tags = tagsRaw ? tagsRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
+    const task = {
+      id:uid(), text, done:false, type: taskModalType, due, dueTime, reminderMinutes,
+      tags: taskModalType==='task' ? tags : []
+    };
+    if(taskModalType==='assignment'){
+      task.course = document.getElementById('taskCourse').value.trim();
+      task.submissionType = document.getElementById('taskSubmission').value;
+    }
+    state.tasks.push(task);
     await storeSet('tasks', state.tasks);
-    txtEl.value=''; dueEl.value='';
+    closeTaskModal();
     renderTasks();
     if(due && state.gcal.autoSync && state.gcal.clientId){
-      const start = new Date(due+'T09:00:00');
+      const timePart = dueTime || '09:00';
+      const start = new Date(due+'T'+timePart+':00');
       const end = new Date(start); end.setMinutes(end.getMinutes()+30);
-      sendToCalendar(text, start, end, {silent:true}).then(ok=>{ if(ok) showToast('Synced to Google Calendar'); });
+      sendToCalendar(text, start, end, {reminderMinutes, silent:true}).then(ok=>{ if(ok) showToast('Synced to Google Calendar'); });
     }
-  }
+  };
 
   // ----- Calendar view -----
   async function renderCalendar(){
@@ -1024,6 +1375,13 @@
 
     const dueDates = new Set(state.tasks.filter(t=>t.due && !t.done).map(t=>t.due));
     const eventDates = new Set(state.eventsIndex);
+    const recurringDates = new Set();
+    if(state.recurring && state.recurring.length){
+      for(let d=1; d<=daysInMonth; d++){
+        const cellDate = new Date(year, month, d);
+        if(state.recurring.some(r=>occursOn(r, cellDate))) recurringDates.add(dateKey(cellDate));
+      }
+    }
 
     let cells = '';
     for(let i=0;i<startOffset;i++) cells += `<div class="cal-cell muted"></div>`;
@@ -1032,7 +1390,7 @@
       const key = dateKey(cellDate);
       const isToday = key===dateKey(state.today);
       const isSelected = key===dateKey(state.selectedDate);
-      const hasMark = dueDates.has(key) || eventDates.has(key);
+      const hasMark = dueDates.has(key) || eventDates.has(key) || recurringDates.has(key);
       cells += `<div class="cal-cell ${isToday?'today':''} ${isSelected?'selected':''}" data-key="${key}">
         <span>${d}</span>${hasMark?'<span class="cal-dot"></span>':''}
       </div>`;
@@ -1065,14 +1423,16 @@
     const panel = document.getElementById('dayPanel');
     const key = dateKey(state.selectedDate);
     const dayTasks = state.tasks.filter(t=>t.due===key);
-    const events = await getEvents(key);
+    const oneOff = await getEvents(key);
+    const occ = await getOccurrencesForDate(state.selectedDate);
+    const events = [...oneOff, ...occ];
     let html = `<h3>${fmtDayLabel(state.selectedDate)} · ${fmtDateSub(state.selectedDate)}</h3>`;
     if(dayTasks.length===0 && events.length===0){
       html += `<div class="card"><div class="empty-state">nothing planned for this day</div></div>`;
     } else {
       html += `<div class="card">`;
       dayTasks.forEach(t=>{
-        html += `<div class="task-item ${t.done?'done':''}"><button class="chk ${t.done?'on':''}" data-action="dttoggle" data-id="${t.id}">${CHECK_SVG}</button><span class="txt">${escapeHtml(t.text)}</span></div>`;
+        html += `<div class="task-item ${t.done?'done':''}"><button class="chk ${t.done?'on':''}" data-action="dttoggle" data-id="${t.id}">${CHECK_SVG}</button><span class="txt">${escapeHtml(t.text)}${t.dueTime?` <span style="color:var(--ink-soft);font-size:11px;">(${fmtTime(...t.dueTime.split(':').map(Number))})</span>`:''}</span></div>`;
       });
       events.sort((a,b)=> a.hour-b.hour || (a.minute||0)-(b.minute||0)).forEach(e=>{
         html += `<div class="task-item ${e.done?'done':''}"><span class="due" style="width:60px;">${fmtTime(e.hour, e.minute)}</span><span class="txt">${escapeHtml(e.text)}</span></div>`;
@@ -1091,6 +1451,70 @@
       const t = state.tasks.find(x=>x.id===b.dataset.id);
       if(t){ t.done=!t.done; await storeSet('tasks', state.tasks); renderDayPanel(); }
     });
+  }
+
+  // ----- Notes view -----
+  let editingNoteId = null;
+  function renderNotes(){
+    if(editingNoteId!==null){ renderNoteEditor(); return; }
+    const sorted = [...state.notes].sort((a,b)=> (b.updatedAt||0)-(a.updatedAt||0));
+    let html = `<div class="fab-row"><button id="newNoteBtn">+ New note</button></div>`;
+    if(sorted.length===0){
+      html += `<div class="empty-state">no memos yet — jot something down</div>`;
+    } else {
+      html += sorted.map(n=>`
+        <div class="note-item" data-id="${n.id}">
+          <h4>${escapeHtml(n.title || 'Untitled')}</h4>
+          <p>${escapeHtml(n.body||'')}</p>
+        </div>
+      `).join('');
+    }
+    main.innerHTML = html;
+    document.getElementById('newNoteBtn').onclick = ()=>{
+      editingNoteId = 'new';
+      renderNotes();
+    };
+    main.querySelectorAll('.note-item').forEach(el=>{
+      el.onclick = ()=>{ editingNoteId = el.dataset.id; renderNotes(); };
+    });
+  }
+  function renderNoteEditor(){
+    const isNew = editingNoteId==='new';
+    const note = isNew ? {title:'', body:''} : state.notes.find(n=>n.id===editingNoteId) || {title:'', body:''};
+    main.innerHTML = `
+      <div class="note-editor">
+        <input type="text" id="noteTitleInput" placeholder="Title" value="${escapeHtml(note.title||'')}">
+        <textarea id="noteBodyInput" placeholder="Write your note...">${escapeHtml(note.body||'')}</textarea>
+        <div class="fab-row" style="margin-top:12px;">
+          <button id="noteSaveBtn">Save</button>
+          <button class="secondary" id="noteBackBtn">Back</button>
+          ${!isNew?'<button class="secondary" id="noteDeleteBtn" style="color:#B5484D;">Delete</button>':''}
+        </div>
+      </div>
+    `;
+    document.getElementById('noteBackBtn').onclick = ()=>{ editingNoteId=null; renderNotes(); };
+    document.getElementById('noteSaveBtn').onclick = async ()=>{
+      const title = document.getElementById('noteTitleInput').value.trim();
+      const body = document.getElementById('noteBodyInput').value;
+      if(!title && !body){ editingNoteId=null; renderNotes(); return; }
+      if(isNew){
+        state.notes.push({id:uid(), title, body, updatedAt: Date.now()});
+      } else {
+        const n = state.notes.find(x=>x.id===editingNoteId);
+        if(n){ n.title=title; n.body=body; n.updatedAt=Date.now(); }
+      }
+      await storeSet('notes', state.notes);
+      editingNoteId = null;
+      renderNotes();
+    };
+    const delBtn = document.getElementById('noteDeleteBtn');
+    if(delBtn) delBtn.onclick = async ()=>{
+      if(!confirm('Delete this note?')) return;
+      state.notes = state.notes.filter(n=>n.id!==editingNoteId);
+      await storeSet('notes', state.notes);
+      editingNoteId = null;
+      renderNotes();
+    };
   }
 
   // ----- Theme view -----
@@ -1232,11 +1656,43 @@
     const now = new Date();
     const key = dateKey(now);
     if(state.notifiedDate !== key){ state.notifiedDate = key; state.notifiedToday = new Set(); }
-    const events = await getEvents(key);
-    events.filter(e=>e.hour===now.getHours() && (e.minute||0)===now.getMinutes() && !e.done).forEach(e=>{
-      if(!state.notifiedToday.has(e.id)){
-        state.notifiedToday.add(e.id);
-        try{ new Notification('Planner', {body: e.text}); }catch(err){}
+    const nowMinuteMark = Math.floor(now.getTime()/60000); // minutes since epoch, for exact-minute matching
+
+    function fire(id, text){
+      if(!state.notifiedToday.has(id)){
+        state.notifiedToday.add(id);
+        try{ new Notification('Planner', {body: text}); }catch(err){}
+      }
+    }
+    function notifyMinuteMark(hour, minute, reminderMinutes){
+      const target = new Date(now); target.setHours(hour, minute, 0, 0);
+      target.setMinutes(target.getMinutes() - (reminderMinutes||0));
+      return Math.floor(target.getTime()/60000);
+    }
+
+    const oneOff = await getEvents(key);
+    oneOff.filter(e=>!e.done).forEach(e=>{
+      const rm = e.reminderMinutes===undefined ? 0 : e.reminderMinutes;
+      if(rm===null) return;
+      if(notifyMinuteMark(e.hour, e.minute||0, rm) === nowMinuteMark){
+        fire(e.id, e.text);
+      }
+    });
+
+    const occ = await getOccurrencesForDate(now);
+    occ.filter(e=>!e.done).forEach(e=>{
+      const rm = e.reminderMinutes===undefined ? 0 : e.reminderMinutes;
+      if(rm===null) return;
+      if(notifyMinuteMark(e.hour, e.minute||0, rm) === nowMinuteMark){
+        fire(e.id+':'+key, e.text);
+      }
+    });
+
+    state.tasks.filter(t=>t.due===key && !t.done && t.reminderMinutes!=null).forEach(t=>{
+      const timePart = t.dueTime || '09:00';
+      const [h,m] = timePart.split(':').map(Number);
+      if(notifyMinuteMark(h, m, t.reminderMinutes) === nowMinuteMark){
+        fire(t.id, t.text);
       }
     });
   }
